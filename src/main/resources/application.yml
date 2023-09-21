@@ -1,0 +1,17 @@
+
+app:
+  welcome:
+    message: ${APP.WELCOME.MESSAGE:Hello, welcome to use the container.} 
+  env: ${APP.ENV:local}
+  token: ${APP.token:local token}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+
