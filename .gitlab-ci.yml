@@ -32,7 +32,7 @@ build:
     - compile
 
 
-push:
+push-to-ecr:
   stage: push-to-ecr
   image: docker:24.0.6
   services:
