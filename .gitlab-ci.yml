@@ -1,7 +1,7 @@
 stages:
   - compile
   - build
-  - push
+  - push-to-ecr
 
 variables:
   IMAGE_NAME: ithome-app-backend
@@ -32,7 +32,7 @@ build:
 
 
 push:
-  stage: push
+  stage: push-to-ecr
   image: docker:24.0.6
   services:
     - docker:dind
@@ -48,7 +48,3 @@ push:
     - docker push $ECR_REGISTRTY:$CI_COMMIT_SHORT_SHA
   dependencies:
     - build
-  only:
-    - develop
-    - /^[a-z]*[-]?v[0-9\.]+$/
-    - staging
