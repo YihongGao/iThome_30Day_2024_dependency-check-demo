@@ -6,7 +6,6 @@ stages:
 variables:
   IMAGE_NAME: ithome-app-backend
   CI_IMAGE: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
-  ECR_REGISTRTY: 958069133531.dkr.ecr.ap-northeast-1.amazonaws.com
 
 compile:
   stage: compile
@@ -26,8 +25,8 @@ build:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - ls -ltr target
-    - docker build -t $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1 .
-    - docker push $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1
+    - docker build -t $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
   dependencies:
     - compile
 
@@ -43,9 +42,13 @@ push:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRTY
   script:
-    - docker pull $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1
+    - docker pull $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
     - docker image ls
-    - docker tag $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1 $ECR_REGISTRTY/$IMAGE_NAME:main-v1
-    - docker push $ECR_REGISTRTY/$IMAGE_NAME:main-v1
+    - docker tag $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA $ECR_REGISTRTY:$CI_COMMIT_SHORT_SHA
+    - docker push $ECR_REGISTRTY:$CI_COMMIT_SHORT_SHA
   dependencies:
     - build
+  only:
+    - develop
+    - /^[a-z]*[-]?v[0-9\.]+$/
+    - staging
