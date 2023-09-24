@@ -6,6 +6,7 @@ stages:
 variables:
   IMAGE_NAME: ithome-app-backend
   CI_IMAGE: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+  ECR_REGISTRTY: 958069133531.dkr.ecr.ap-northeast-1.amazonaws.com/ithome-app-backend
 
 compile:
   stage: compile
@@ -23,6 +24,7 @@ build:
     - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRTY
   script:
     - ls -ltr target
     - docker build -t $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1 .
@@ -41,7 +43,7 @@ push:
   script:
     - docker pull $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1
     - docker image ls
-    - docker tag $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1 yihonggaotw/$IMAGE_NAME:main-v1
-    - docker push yihonggaotw/$IMAGE_NAME:main-v1
+    - docker tag $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1 $ECR_REGISTRTY/$IMAGE_NAME:main-v1
+    - docker push $ECR_REGISTRTY/$IMAGE_NAME:main-v1
   dependencies:
     - build
