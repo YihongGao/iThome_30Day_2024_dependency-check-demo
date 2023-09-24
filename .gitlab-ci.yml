@@ -24,7 +24,6 @@ build:
     - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRTY
   script:
     - ls -ltr target
     - docker build -t $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1 .
@@ -39,7 +38,10 @@ push:
   services:
     - docker:dind
   before_script:
+    - apk add --no-cache python3 py3-pip
+    - pip3 install --no-cache-dir awscli
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRTY
   script:
     - docker pull $CI_REGISTRY_IMAGE/$IMAGE_NAME:v1
     - docker image ls
