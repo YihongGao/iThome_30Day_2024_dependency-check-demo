@@ -1,0 +1,20 @@
+stages:
+  - compile
+  - build
+  - push
+
+compile:
+  stage: compile
+  script:
+    - ./mvnw clean package
+  artifacts:
+    paths:
+      - target/*.jar
+
+build:
+  stage: build
+  script:
+    - ls -ltr target
+    - docker build -t my-app-image .
+  dependencies:
+    - compile

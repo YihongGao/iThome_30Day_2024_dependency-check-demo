@@ -1,4 +1,4 @@
-FROM arm64v8/eclipse-temurin:17.0.8.1_1-jre-ubi9-minimal
+FROM eclipse-temurin:17.0.8.1_1-jre
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 # 切換到用戶 appuser
 USER appuser
 
-COPY target/demo.jar /app/application.jar
+COPY target/*.jar /app/application.jar
 
 # 定義容器啟動命令，運行 JAR 文件
 CMD ["java", "-jar", "application.jar"]
