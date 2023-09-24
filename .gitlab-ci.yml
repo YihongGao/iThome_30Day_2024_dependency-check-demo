@@ -6,7 +6,7 @@ stages:
 variables:
   IMAGE_NAME: ithome-app-backend
   CI_IMAGE: $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
-  ECR_REGISTRTY: 958069133531.dkr.ecr.ap-northeast-1.amazonaws.com/ithome-app-backend
+  ECR_REGISTRTY: 958069133531.dkr.ecr.ap-northeast-1.amazonaws.com
 
 compile:
   stage: compile
