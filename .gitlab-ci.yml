@@ -14,6 +14,10 @@ compile:
 
 build:
   stage: build
+  tags:
+    - linux
+    - docker
+    - saas-linux-small-amd64
   script:
     - ls -ltr target
     - docker build -t my-app-image .
