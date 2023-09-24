@@ -26,7 +26,11 @@ build:
 
 push:
   stage: push
+  image: docker:24.0.6
+  services:
+    - docker:dind
   script:
+    - docker image ls
     - docker tag ithome-app-backend:main-v1 yihonggaotw/ithome-app-backend:main-v1
     - docker push yihonggaotw/ithome-app-backend:main-v1
   dependencies:
