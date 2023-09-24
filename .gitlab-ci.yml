@@ -19,6 +19,15 @@ build:
     - docker:dind
   script:
     - ls -ltr target
-    - docker build -t my-app-image .
+    - docker build -t ithome-app-backend:main-v1 .
   dependencies:
     - compile
+
+
+push:
+  stage: push
+  script:
+    - docker tag ithome-app-backend:main-v1 yihonggaotw/ithome-app-backend:main-v1
+    - docker push yihonggaotw/ithome-app-backend:main-v1
+  dependencies:
+    - build
