@@ -15,6 +15,8 @@ compile:
 build:
   stage: build
   image: docker:24.0.6
+  services:
+    - docker:dind
   script:
     - ls -ltr target
     - docker build -t my-app-image .
