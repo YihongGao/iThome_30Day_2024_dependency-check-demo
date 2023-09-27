@@ -3,7 +3,7 @@ app:
   welcome:
     message: ${APP.WELCOME.MESSAGE:Hello, welcome to use the container.} 
   env: ${APP.ENV:local}
-  token: ${APP.token:local token}
+  token: ${APP.TOKEN:local token}
 
 management:
   endpoint:
