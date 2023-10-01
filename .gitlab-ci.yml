@@ -53,7 +53,6 @@ push-to-ecr:
     - docker image ls
     - docker tag $CI_IMAGE $ECR_CI_IMAGE
     - docker push $ECR_CI_IMAGE
-    -
     - docker tag $CI_IMAGE ECR_CI_LATEST_IMAGE
     - docker push ECR_CI_LATEST_IMAGE
   dependencies:
