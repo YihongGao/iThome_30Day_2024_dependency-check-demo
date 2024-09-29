@@ -57,6 +57,10 @@ public class DemoController {
         return ResponseEntity.internalServerError().body("mock error");
     }
 
+    @GetMapping("/version")
+    public String version() {
+        return "1.2";
+    }
 
     @RequestMapping("/env")
     public String env() {
