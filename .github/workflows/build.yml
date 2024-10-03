@@ -1,4 +1,4 @@
-name: '[Jar] Build Jar and Build Image and Push to Google Artifact Registry'
+name: 'CI pipeline for build jar'
 
 on:
   push:
@@ -17,11 +17,11 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' # 這裡使用的是 Eclipse Temurin 的 JDK
+          distribution: 'temurin'
           java-version: '17'
-      # Step 3: 使用 Maven 建置專案
-      - name: Build with Maven
+      - name: Test
         run: ./mvnw clean test
+
   dependency-check:
     runs-on: ubuntu-latest
     steps:
@@ -30,11 +30,37 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' # 這裡使用的是 Eclipse Temurin 的 JDK
+          distribution: 'temurin'
           java-version: '17'
-      # Step 3: 使用 Maven 建置專案
-      - name: Build with Maven
-        run: ./mvnw verify -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+      # 找 ~/.m2/repository 有沒有 cache，避免每次都要下載 CVE database
+      - name: Restore cached m2-repository
+        id: cache-m2-repository-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-repository-${{ hashFiles('**/pom.xml') }}
+      # 如果沒有 cache，就下載 CVE database
+      - name: Download CVE database
+        if: steps.cache-m2-repository-restore.outputs.cache-hit != 'true'
+        run: ./mvnw dependency-check:update-only -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+      # 儲存 m2-repository，包含 dependency-check cve database
+      - name: Save m2-repository(including dependency-check cve database)
+        id: cache-m2-repository-save
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-repository-${{ hashFiles('**/pom.xml') }}
+      # 執行 dependency-check 分析弱點，若有弱點分數大於 8，則建構失敗
+      - name: Analysis
+        run: ./mvnw verify -DfailBuildOnCVSS=8
+      # 若建構失敗，則上傳 dependency-check report
+      - name: upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/target/dependency-check-report.html
 
   build-jar:
     runs-on: ubuntu-latest
@@ -45,9 +71,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' # 這裡使用的是 Eclipse Temurin 的 JDK
+          distribution: 'temurin'
           java-version: '17'
-      # Step 3: 使用 Maven 建置專案
       - name: Build with Maven
         run: ./mvnw clean package
       - name: Upload the Jar
